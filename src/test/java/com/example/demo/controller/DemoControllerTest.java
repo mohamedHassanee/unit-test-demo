@@ -88,11 +88,11 @@ public class DemoControllerTest {
 
 	@Test
 	void shouldReturn404WhenUpdatingNonExistingDemo() throws Exception {
-		Long userId = 1L;
+		Long demoId = 1L;
 		Demo demoToUpdate = Demo.builder().id(10L).name("Demo to delete").description("demo description").build();
-		BDDMockito.given(service.findDemoById(userId)).willReturn(Optional.empty());
+		BDDMockito.given(service.findDemoById(demoId)).willReturn(Optional.empty());
 
-		this.mockMvc.perform(put("/demos/{id}", userId).contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(put("/demos/{id}", demoId).contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(demoToUpdate))).andExpect(status().isNotFound());
 	}
 

@@ -18,12 +18,12 @@ public class DemoService {
 
 	private final DemoRepository repo;
 
-	public Demo createDemo(Demo user) {
-		return repo.save(user);
+	public Demo createDemo(Demo demo) {
+		return repo.save(demo);
 	}
 
-	public Demo updateDemo(Demo user) {
-		return repo.save(user);
+	public Demo updateDemo(Demo demo) {
+		return repo.save(demo);
 	}
 
 	public List<Demo> findAllDemos() {
