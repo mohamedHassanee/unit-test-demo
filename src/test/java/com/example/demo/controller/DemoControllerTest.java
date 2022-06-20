@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import com.example.demo.service.DemoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = DemoController.class)
+@AutoConfigureRestDocs(outputDir = "target/snippets")
 public class DemoControllerTest {
 
 	@Autowired
@@ -41,14 +44,14 @@ public class DemoControllerTest {
 		List<Demo> list = Arrays.asList(Demo.builder().id(1L).name("Demo 1").description("Demo1 Desc").build(),
 				Demo.builder().id(1L).name("Demo 2").description("Demo2 Desc").build());
 		BDDMockito.given(service.findAllDemos()).willReturn(list);
-		mockMvc.perform(get("/demos")).andExpect(status().isOk()).andExpect(jsonPath("$.size()", is(list.size())));
+		mockMvc.perform(get("/demos")).andExpect(status().isOk()).andExpect(jsonPath("$.size()", is(list.size()))).andDo(document("findAll"));
 	}
 
 	@Test
 	public void shouldFindDemoById() throws Exception {
 		BDDMockito.given(service.findDemoById(1L))
 				.willReturn(Optional.of(Demo.builder().id(1L).name("Demo1").description("Demo Description").build()));
-		mockMvc.perform(get("/demos/{id}", 1L)).andExpect(status().isOk()).andExpect(jsonPath("$.name", is("Demo1")));
+		mockMvc.perform(get("/demos/{id}", 1L)).andExpect(status().isOk()).andExpect(jsonPath("$.name", is("Demo1"))).andDo(document("findById"));
 	}
 
 	@Test
@@ -67,7 +70,7 @@ public class DemoControllerTest {
 				.perform(post("/demos").contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(newDemo)))
 				.andExpect(status().isCreated()).andExpect(jsonPath("$.name", is(newDemo.getName())))
-				.andExpect(jsonPath("$.description", is(newDemo.getDescription())));
+				.andExpect(jsonPath("$.description", is(newDemo.getDescription()))).andDo(document("createDemo"));
 	}
 
 	@Test
@@ -80,7 +83,7 @@ public class DemoControllerTest {
 				.perform(put("/demos/{id}", demoId).contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(demo)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.name", is(demo.getName())))
-				.andExpect(jsonPath("$.description", is(demo.getDescription())));
+				.andExpect(jsonPath("$.description", is(demo.getDescription()))).andDo(document("updateDemo"));
 	}
 
 	@Test
@@ -100,7 +103,7 @@ public class DemoControllerTest {
 		BDDMockito.given(service.findDemoById(demoId)).willReturn(Optional.of(demo));
 		BDDMockito.doNothing().when(service).deleteDemoById(demoId);
 		this.mockMvc.perform(delete("/demos/{id}", demoId).contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNoContent());
+				.andExpect(status().isNoContent()).andDo(document("deleteDemo"));
 	}
 
 	@Test
